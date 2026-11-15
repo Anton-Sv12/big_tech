@@ -1,0 +1,16 @@
+def count_friday_13th(first_day_jan):
+    # Количество дней в каждом месяце (невисокосный год)
+    days_in_month = [31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31]
+    
+    count = 0
+    current_day_of_week = first_day_jan
+    
+    for days in days_in_month:
+        day_13 = (current_day_of_week + 12) % 7
+        
+        if day_13 == 4:
+            count += 1
+        
+        current_day_of_week = (current_day_of_week + days) % 7
+    
+    return count
