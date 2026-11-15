@@ -1,0 +1,22 @@
+s = "AABCCCDDEFFFF"
+
+result = []
+count = 1
+
+for i in range(len(s) - 1):
+    if s[i] == s[i + 1]:
+        # Если следующая такая же — увеличиваем счётчик
+        count += 1
+    else:
+        # Если другая — добавляем текущую букву и (при необходимости) число
+        result.append(s[i])
+        if count > 1:
+            result.append(str(count))
+        count = 1  
+
+# Обрабатываем последний символ строки
+result.append(s[-1])
+if count > 1:
+    result.append(str(count))
+
+print("".join(result))
