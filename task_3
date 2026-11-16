@@ -1,0 +1,52 @@
+import pandas as pd
+import sqlite3
+
+conn = sqlite3.connect(':memory:')
+cursor = conn.cursor()
+
+cursor.execute('DROP TABLE IF EXISTS log')
+cursor.execute('''
+CREATE TABLE log (
+    user_id INTEGER,
+    date VARCHAR(255)
+)
+''')
+
+users_data = [
+    (1, '2025-07-01'),
+    (1, '2025-07-03'),
+    (1, '2025-07-08'),
+    (1, '2025-07-09'),
+    (1, '2025-07-10'),
+    (1, '2025-07-21'),
+    (1, '2025-07-26'),
+    (1, '2025-07-28'),
+    (1, '2025-07-29'),
+    (2, '2025-07-01'),
+    (2, '2025-07-02'),
+    (2, '2025-07-10'),
+    (2, '2025-07-28'),
+    (2, '2025-07-29'),
+    (2, '2025-07-30'),
+]
+
+cursor.executemany('INSERT INTO log (user_id, date) VALUES (?, ?)', users_data)
+conn.commit()
+
+query = '''
+SELECT user_id
+FROM (
+    SELECT
+        user_id,
+        strftime('%W', date) AS week_num,
+        COUNT(*) AS visits_in_week
+    FROM log
+    WHERE date >= date((SELECT MAX(date) FROM log), '-30 days')
+    GROUP BY user_id, week_num
+) AS weekly_visits
+GROUP BY user_id
+HAVING MIN(visits_in_week) >= 2;
+'''
+
+result = pd.read_sql(query, conn)
+print(result)
