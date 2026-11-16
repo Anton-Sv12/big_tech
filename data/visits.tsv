@@ -1,0 +1,6 @@
+user_id	datetime	visit_id	source
+1	2025-08-01 09:30	1111	organic
+1	2025-08-01 14:30	2222	ad
+1	2025-08-01 19:30	3333	email
+2	2025-08-01 15:00	4444	partner
+2	2025-08-01 15:40	5555	organic
