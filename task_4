@@ -1,0 +1,32 @@
+orders = pd.read_csv('orders.tsv', sep='\t')
+visits = pd.read_csv('visits.tsv', sep='\t')
+
+orders = orders.dropna(subset=['user_id'])
+visits = visits.dropna(subset=['user_id'])
+
+visits['user_id']  = visits['user_id'].astype('int64')
+visits['visit_id'] = visits['visit_id'].astype('int64')
+orders['user_id']  = orders['user_id'].astype('int64')
+orders['order_id'] = orders['order_id'].astype('int64')
+
+conn = sqlite3.connect(':memory:') 
+
+visits.to_sql('visits', conn, if_exists='replace', index=False)
+orders.to_sql('orders', conn, if_exists='replace', index=False)
+
+query = '''
+SELECT
+    o.order_id,
+    o.user_id,
+    v.visit_id,
+    v.source,
+    CAST(ROUND(MIN((julianday(o.datetime) - julianday(v.datetime)) * 24 * 60), 0) AS INTEGER) AS diff_minutes
+FROM orders o
+JOIN visits v ON o.user_id = v.user_id
+WHERE julianday(o.datetime) >= julianday(v.datetime)
+GROUP BY o.order_id, o.user_id
+ORDER BY o.user_id, o.order_id;
+'''
+
+result = pd.read_sql(query, conn)
+result
